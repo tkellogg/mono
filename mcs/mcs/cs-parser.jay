@@ -2572,6 +2572,29 @@ enum_member_declaration
 
 		$$ = em;
 	  }
+	| opt_attributes IDENTIFIER OPEN_PARENS 
+	  {
+		valid_param_mod = ParameterModifierType.Arglist;
+		}
+		opt_formal_parameter_list CLOSE_PARENS
+		{
+			var lt = (Tokenizer.LocatedToken) $2;
+				var em = new DiscriminatedUnionMember((Enum) current_class, new MemberName (lt.Value, lt.Location), (Attributes) $1);
+				((Enum) current_class).AddEnumMember (em);
+
+			if (RootContext.Documentation != null) {
+				em.DocComment = Lexer.consume_doc_comment ();
+				Lexer.doc_state = XmlCommentState.Allowed;
+			}
+
+			var parms = (ParametersCompiled) $5;
+			if (parms != ParametersCompiled.EmptyReadOnlyParameters && parms != ParametersCompiled.Undefined) {
+				em.Parameters = parms;
+				((Enum) current_class).IsDiscriminatedUnion = true;
+			}
+
+			$$ = em;
+		}
 	| opt_attributes IDENTIFIER
 	  {
 	  	++lexer.parsing_block;

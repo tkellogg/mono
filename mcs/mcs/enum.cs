@@ -25,7 +25,7 @@ namespace Mono.CSharp {
 
 	public class EnumMember : Const
 	{
-		class EnumTypeExpr : TypeExpr
+		protected class EnumTypeExpr : TypeExpr
 		{
 			protected override TypeExpr DoResolveAsTypeStep (IMemberContext ec)
 			{
@@ -86,6 +86,25 @@ namespace Mono.CSharp {
 		}
 	}
 
+	public class DiscriminatedUnionMember : EnumMember
+	{
+		ParametersCompiled parameters;
+		
+		public DiscriminatedUnionMember (Enum parent, MemberName name, Attributes attrs)
+			: base (parent, name, attrs)
+		{
+			Console.WriteLine("DiscriminatedUnionMember");
+		}
+		
+		public ParametersCompiled Parameters {
+			get { return parameters; }
+			set { 
+				parameters = value; 
+				Console.WriteLine("set_Parameters");
+			}
+		}
+	}
+
 	/// <summary>
 	///   Enumeration container
 	/// </summary>
@@ -135,6 +154,7 @@ namespace Mono.CSharp {
 			}
 		}
 
+		bool is_discriminated_union;
 		public static readonly string UnderlyingValueField = "value__";
 
 		const Modifiers AllowedModifiers =
@@ -178,6 +198,15 @@ namespace Mono.CSharp {
 		public TypeSpec UnderlyingType {
 			get {
 				return ((EnumSpec) spec).UnderlyingType;
+			}
+		}
+
+		public bool IsDiscriminatedUnion {
+			get {
+				return is_discriminated_union;
+			}
+			set {
+				is_discriminated_union = value;
 			}
 		}
 
